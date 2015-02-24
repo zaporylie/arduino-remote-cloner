@@ -1,48 +1,58 @@
- #include <EEPROM.h>
+#include <EEPROM.h>
 
- #define rfReceivePin A0     //RF Receiver data pin = Analog pin 0
- #define rfTransmitPin 4     //RF Transmitter pin = digital pin 4
- #define button 2            //The button attached to digital pin 6
- #define ledPin 13           //Onboard LED = digital pin 13
+#define button 2            //The button attached to pin 2
  
- int eepromButton1 = 0;
- int eepromButton2 = 2;
- int eepromButton3 = 4;
- int eepromButton4 = 6;
+int eepromButton1 = 0;
+int eepromButton2 = 2;
+int eepromButton3 = 4;
+int eepromButton4 = 6;
  
- int code1 = 0;
- int code2 = 0;
- int code3 = 0;
- int code4 = 0;
+int code1 = 0;
+int code2 = 0;
+int code3 = 0;
+int code4 = 0;
 
- void setup(){
-   Serial.begin(9600);    //Initialise Serial communication - only required if you plan to print to the Serial monitor
-   pinMode(rfTransmitPin, OUTPUT);    
-   pinMode(ledPin, OUTPUT); 
-   pinMode(button, INPUT);
-   
-   EEPROMWriteInt(eepromButton1, 10);
-   EEPROMWriteInt(eepromButton2, 20);
-   EEPROMWriteInt(eepromButton3, 30);
-   EEPROMWriteInt(eepromButton4, 40);
-   
-   code1 = EEPROMReadInt(eepromButton1);
-   code2 = EEPROMReadInt(eepromButton2);
-   code3 = EEPROMReadInt(eepromButton3);
-   code4 = EEPROMReadInt(eepromButton4);
-   
-   Serial.println("Code1: " + code1);
-   Serial.println("Code2: " + code2);
-   Serial.println("Code3: " + code3);
-   Serial.println("Code4: " + code4);
- }
- 
- void loop(){
-//   digitalRead(button);
-//   Serial.println(buttonVal);
+
+void registerCode() {
+  detachInterrupt(0);
   delay(20);
- }
+  int buttonVal = digitalRead(button);
+  Serial.println(buttonVal);
+  delay(20);
+  
+  attachInterrupt(0, registerCode, RISING);
+}
+
+void setup(){
+  Serial.begin(9600);    //Initialise Serial communication - only required if you plan to print to the Serial monitor
+  pinMode(button, INPUT);
+   
+  EEPROMWriteInt(eepromButton1, 10);
+  EEPROMWriteInt(eepromButton2, 20);
+  EEPROMWriteInt(eepromButton3, 30);
+  EEPROMWriteInt(eepromButton4, 40);
+   
+  code1 = EEPROMReadInt(eepromButton1);
+  code2 = EEPROMReadInt(eepromButton2);
+  code3 = EEPROMReadInt(eepromButton3);
+  code4 = EEPROMReadInt(eepromButton4);
+   
+  Serial.print("Code1: ");
+  Serial.println(code1);
+  Serial.print("Code2: ");
+  Serial.println(code2);
+  Serial.print("Code3: ");
+  Serial.println(code3);
+  Serial.print("Code4: ");
+  Serial.println(code4);
+   
+  attachInterrupt(0, registerCode, RISING);
+  int0_guard = true ;   // only set the guard variable after attachInterrupt
+}
  
+void loop(){
+  delay(20);
+}
  
 void EEPROMWriteInt(int p_address, int p_value) {
   byte lowByte = ((p_value >> 0) & 0xFF);
