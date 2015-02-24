@@ -16,8 +16,12 @@ int code4 = 0;
 void registerCode() {
   detachInterrupt(0);
   delay(20);
-  int buttonVal = digitalRead(button);
-  Serial.println(buttonVal);
+  
+  EEPROMWriteInt(eepromButton1, random(300));
+  code1 = EEPROMReadInt(eepromButton1);
+  Serial.print("Code1: ");
+  Serial.println(code1);
+  
   delay(20);
   
   attachInterrupt(0, registerCode, RISING);
@@ -26,11 +30,6 @@ void registerCode() {
 void setup(){
   Serial.begin(9600);    //Initialise Serial communication - only required if you plan to print to the Serial monitor
   pinMode(button, INPUT);
-   
-  EEPROMWriteInt(eepromButton1, 10);
-  EEPROMWriteInt(eepromButton2, 20);
-  EEPROMWriteInt(eepromButton3, 30);
-  EEPROMWriteInt(eepromButton4, 40);
    
   code1 = EEPROMReadInt(eepromButton1);
   code2 = EEPROMReadInt(eepromButton2);
@@ -47,7 +46,6 @@ void setup(){
   Serial.println(code4);
    
   attachInterrupt(0, registerCode, RISING);
-  int0_guard = true ;   // only set the guard variable after attachInterrupt
 }
  
 void loop(){
