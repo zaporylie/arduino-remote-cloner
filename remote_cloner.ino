@@ -6,7 +6,7 @@
 #define BUTTONTRANSMITER 3
 #define MAXSIGNALLENGTH 255
 #define DATASIZE 400
-#define THERESHOLD 150
+#define THERESHOLD 200
 
 int timeDelay = 105;    //Used to slow down the signal transmission (can be from 75 - 135)
 byte button1[DATASIZE];  //Create an array to store the data
@@ -25,7 +25,7 @@ int code3 = 0;
 int code4 = 0;
 
 
-void registerCode() {
+void recieveCode(int reg) {
   Serial.println("registerCode");
 //  detachInterrupt(0);
 //  detachInterrupt(1);
@@ -61,7 +61,7 @@ void registerCode() {
 //  attachInterrupt(1, sendCode, RISING);
 }
 
-void sendCode() {
+void sendCode(int reg) {
   Serial.println("sendCode");
 //  detachInterrupt(0);
 //  detachInterrupt(1);
@@ -114,12 +114,42 @@ void setup(){
 //  attachInterrupt(0, registerCode, RISING);
 //  attachInterrupt(1, sendCode, RISING);
   Serial.println("Ready");
+  printMenu();
+}
+
+void printMenu() {
+  Serial.println("Choose mode:");
+  Serial.println("[1] - receive");
+  Serial.println("[2] - send");
+}
+
+int printSubMenu() {
+  Serial.println("Which register:");
+  Serial.println("[1]");
+  Serial.println("[2]");
+  Serial.println("[3]");
+  Serial.println("[4]");
+  while(!Serial.available()) {
+    delay(10);
+  }
+  return Serial.read();
 }
  
 void loop(){
   delay(20);
   if (digitalRead(BUTTONRECORDER) == HIGH) {
     registerCode();
+  }
+  if (Serial.available()) {
+    int code = Serial.read();
+    Serial.println(code);
+    int reg = printSubMenu();
+    if (code == 49) {
+      receiveCode(reg);
+    }
+    else if (code == 50) {
+      sendCode(reg);
+    }
   }
 }
  
