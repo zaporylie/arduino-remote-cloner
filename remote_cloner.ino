@@ -42,6 +42,13 @@ void registerCode() {
   initVariables();
   listenForSignal();
   
+  for(int i = 0; i < DATASIZE; i=i+2){
+   Serial.println("HIGH,LOW");
+   Serial.print(button1[i]);
+   Serial.print(",");
+   Serial.println(button1[i+1]);
+  }
+  
   delay(20);
   
   attachInterrupt(0, registerCode, RISING);
