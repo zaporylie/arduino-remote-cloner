@@ -6,7 +6,7 @@
 #define BUTTONTRANSMITER 3
 #define MAXSIGNALLENGTH 255
 #define DATASIZE 400
-#define THERESHOLD 100
+#define THERESHOLD 150
 
 int timeDelay = 105;    //Used to slow down the signal transmission (can be from 75 - 135)
 byte button1[DATASIZE];  //Create an array to store the data
@@ -14,50 +14,57 @@ byte button1[DATASIZE];  //Create an array to store the data
 //byte button3[DATASIZE];  //Create an array to store the data
 //byte button4[DATASIZE];  //Create an array to store the data
  
-//int eepromButton1 = 0;
-//int eepromButton2 = 2;
-//int eepromButton3 = 4;
-//int eepromButton4 = 6;
+int eepromButton1 = 0;
+int eepromButton2 = 2;
+int eepromButton3 = 4;
+int eepromButton4 = 6;
  
-//int code1 = 0;
-//int code2 = 0;
-//int code3 = 0;
-//int code4 = 0;
+int code1 = 0;
+int code2 = 0;
+int code3 = 0;
+int code4 = 0;
 
 
 void registerCode() {
-  detachInterrupt(0);
-  detachInterrupt(1);
+  Serial.println("registerCode");
+//  detachInterrupt(0);
+//  detachInterrupt(1);
   delay(20);
   
-//  EEPROMWriteInt(eepromButton1, random(300));
-//  code1 = EEPROMReadInt(eepromButton1);
-//  Serial.print("Code1: ");
-//  Serial.println(code1);
+  EEPROMWriteInt(eepromButton1, random(300));
+  code1 = EEPROMReadInt(eepromButton1);
+  Serial.print("Code1: ");
+  Serial.println(code1);
 
+  Serial.println("Waiting for signal");
   while (analogRead(RFRECEIVEPIN) < THERESHOLD) {
-    delay(20); 
+    delay(20);
   }
   
   initVariables();
   listenForSignal();
   
+  Serial.println("Signal");
   for(int i = 0; i < DATASIZE; i=i+2){
-   Serial.println("HIGH,LOW");
-   Serial.print(button1[i]);
-   Serial.print(",");
-   Serial.println(button1[i+1]);
+    for (int j=0; j < button1[i]; j++) {
+      Serial.print("-");
+    }
+    for (int j=0; j < button1[i+1]; j++) {
+      Serial.print("_");
+    }
   }
+  Serial.println("end of signal");
   
   delay(20);
   
-  attachInterrupt(0, registerCode, RISING);
-  attachInterrupt(1, sendCode, RISING);
+//  attachInterrupt(0, registerCode, RISING);
+//  attachInterrupt(1, sendCode, RISING);
 }
 
 void sendCode() {
-  detachInterrupt(0);
-  detachInterrupt(1);
+  Serial.println("sendCode");
+//  detachInterrupt(0);
+//  detachInterrupt(1);
   for (int i=0; i < DATASIZE; i=i+2) {
     //Send HIGH signal
     digitalWrite(RFTRANSMITPIN, HIGH);     
@@ -69,44 +76,51 @@ void sendCode() {
    
   delay(1000);
    
+  Serial.println("Signal");
   for(int i = 0; i < DATASIZE; i=i+2){
-    Serial.println("HIGH,LOW");
-    Serial.print(button1[i]);
-    Serial.print(",");
-    Serial.println(button1[i+1]);
+    for (int j=0; j < button1[i]; j++) {
+      Serial.print("-");
+    }
+    for (int j=0; j < button1[i+1]; j++) {
+      Serial.print("_");
+    }
   }
-  attachInterrupt(0, registerCode, RISING);
-  attachInterrupt(1, sendCode, RISING);
+  Serial.println("end of signal");
+//  attachInterrupt(0, registerCode, RISING);
+//  attachInterrupt(1, sendCode, RISING);
 }
 
 void setup(){
-  Serial.begin(9600);    //Initialise Serial communication - only required if you plan to print to the Serial monitor
+  Serial.begin(19200);    //Initialise Serial communication - only required if you plan to print to the Serial monitor
   pinMode(BUTTONRECORDER, INPUT);
   pinMode(BUTTONTRANSMITER, INPUT);
    
-//  code1 = EEPROMReadInt(eepromButton1);
-//  code2 = EEPROMReadInt(eepromButton2);
-//  code3 = EEPROMReadInt(eepromButton3);
-//  code4 = EEPROMReadInt(eepromButton4);
-//   
-//  Serial.print("Code1: ");
-//  Serial.println(code1);
-//  Serial.print("Code2: ");
-//  Serial.println(code2);
-//  Serial.print("Code3: ");
-//  Serial.println(code3);
-//  Serial.print("Code4: ");
-//  Serial.println(code4);
+  code1 = EEPROMReadInt(eepromButton1);
+  code2 = EEPROMReadInt(eepromButton2);
+  code3 = EEPROMReadInt(eepromButton3);
+  code4 = EEPROMReadInt(eepromButton4);
+   
+  Serial.print("Code1: ");
+  Serial.println(code1);
+  Serial.print("Code2: ");
+  Serial.println(code2);
+  Serial.print("Code3: ");
+  Serial.println(code3);
+  Serial.print("Code4: ");
+  Serial.println(code4);
   
   initVariables();
-  listenForSignal();
    
-  attachInterrupt(0, registerCode, RISING);
-  attachInterrupt(1, sendCode, RISING);
+//  attachInterrupt(0, registerCode, RISING);
+//  attachInterrupt(1, sendCode, RISING);
+  Serial.println("Ready");
 }
  
 void loop(){
   delay(20);
+  if (digitalRead(BUTTONRECORDER) == HIGH) {
+    registerCode();
+  }
 }
  
 void EEPROMWriteInt(int p_address, int p_value) {
@@ -135,6 +149,7 @@ void initVariables() {
 }
 
 void listenForSignal() {
+  Serial.println("listen");
   
   int dataCounter = 0;
   
