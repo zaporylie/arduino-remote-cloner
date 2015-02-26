@@ -25,7 +25,7 @@ int code3 = 0;
 int code4 = 0;
 
 
-void recieveCode(int reg) {
+void receiveCode(int reg) {
   Serial.println("registerCode");
 //  detachInterrupt(0);
 //  detachInterrupt(1);
@@ -138,7 +138,7 @@ int printSubMenu() {
 void loop(){
   delay(20);
   if (digitalRead(BUTTONRECORDER) == HIGH) {
-    registerCode();
+    receiveCode(1);
   }
   if (Serial.available()) {
     int code = Serial.read();
