@@ -4,9 +4,9 @@
 #define RFTRANSMITPIN 4
 #define BUTTONRECORDER 2
 #define BUTTONTRANSMITER 3
-#define MAXSIGNALLENGTH 30
-#define DATASIZE 100
-#define THERESHOLD 100
+#define MAXSIGNALLENGTH 150
+#define DATASIZE 150
+#define THERESHOLD 50
 
 int timeDelay = 105;    //Used to slow down the signal transmission (can be from 75 - 135)
 byte code[4][DATASIZE];
@@ -15,6 +15,7 @@ void setup(){
   Serial.begin(19200);    //Initialise Serial communication - only required if you plan to print to the Serial monitor
   pinMode(BUTTONRECORDER, INPUT);
   pinMode(BUTTONTRANSMITER, INPUT);
+  pinMode(RFRECEIVEPIN, INPUT);
   
 //  initVariables();
   
@@ -81,12 +82,14 @@ int printSubMenu() {
 }
 
 void receiveCode(int reg) {
+  int value = 0;
   Serial.println("registerCode");
   initVariable(reg);
   Serial.println("Waiting for signal...");
   do {
-    delay(20);
-  } while (analogRead(RFRECEIVEPIN) < THERESHOLD);
+    delay(1);
+    Serial.println(value);
+  } while ((value = analogRead(RFRECEIVEPIN)) < THERESHOLD);
 
   listenForSignal(reg);
   printSignal(reg);
@@ -100,7 +103,7 @@ void printSignal(int reg) {
     for (int j = 0; j < code[reg][i]; j++) {
       Serial.print("^");
     }
-    for (int j=0; j < code[reg][i+1]; j++) {
+    for (int j = 0; j < code[reg][i+1]; j++) {
       Serial.print("_");
     }
   }
@@ -140,7 +143,7 @@ void listenForSignal(int reg) {
   boolean state;
   code[reg][0]++;
   for (int i = 0; i < DATASIZE; i=i+2) {
-     while (state = analogRead(RFRECEIVEPIN) > THERESHOLD) {
+     while (state = (analogRead(RFRECEIVEPIN) > THERESHOLD)) {
        code[reg][i]++;
        if (code[reg][i] >= sizeof(code[reg][i])) {
          break;
@@ -149,7 +152,7 @@ void listenForSignal(int reg) {
      if (state) {
        continue;
      }
-     while (!(state = analogRead(RFRECEIVEPIN) > THERESHOLD)) {
+     while (!(state = (analogRead(RFRECEIVEPIN) > THERESHOLD))) {
        code[reg][i+1]++;
        if (code[reg][i+1] >= sizeof(code[reg][i+1])) {
          break;
